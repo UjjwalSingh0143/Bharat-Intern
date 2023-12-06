@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weather App</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div id="weather-container">
+    <h2>Weather App</h2>
+    <div id="location-container">
+      <input type="text" id="location-input" placeholder="Enter location">
+      <button id="submit-btn">Get Weather</button>
+    </div>
+    <div id="weather-info">
+      <div id="current-weather"></div>
+      <div id="forecast-weather"></div>
+    </div>
+  </div>
+
+  <script data-two_delay_id="two_656ffe518bae3" data-two_delay_src="script.js"></script>
+</body>
+</html>
+CSS (style.css):
+#weather-container {
+  text-align: center;
+}
+
+#location-container {
+  margin-top: 20px;
+}
+
+#location-input {
+  padding: 5px;
+}
+
+#submit-btn {
+  padding: 5px 10px;
+  margin-left: 10px;
+}
+
+#weather-info {
+  margin-top: 20px;
+}
+
+#current-weather {
+  font-weight: bold;
+}
+
+#forecast-weather {
+  margin-top: 10px;
+}
+JavaScript (script.js):
+const apiKey = 'YOUR_API_KEY'; // Replace with your API key
+
+const submitButton = document.getElementById('submit-btn');
+const locationInput = document.getElementById('location-input');
+const currentWeatherDiv = document.getElementById('current-weather');
+const forecastWeatherDiv = document.getElementById('forecast-weather');
+
+submitButton.addEventListener('click', () => {
+  const location = locationInput.value;
+  if (location.trim() === '') {
+    alert('Please enter a location');
+    return;
+  }
+
+  fetchWeather(location);
+});
+
+async function fetchWeather(location) {
+  try {
+    // Fetch current weather data
+    const currentWeatherURL = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=no`;
+    const currentWeatherResponse = await fetch(currentWeatherURL);
+    const currentWeatherData = await currentWeatherResponse.json();
+
+    // Fetch forecast weather data
+    const forecastWeatherURL = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=3`;
+    const forecastWeatherResponse = await fetch(forecastWeatherURL);
+    const forecastWeatherData = await forecastWeatherResponse.json();
+
+    // Display current weather
+    displayCurrentWeather(currentWeatherData);
+
+    // Display forecast weather
+    displayForecastWeather(forecastWeatherData);
+  } catch (error) {
+    console.log('Error:', error);
+    alert('An error occurred while fetching weather data');
+  }
+}
+
+function displayCurrentWeather(data) {
+  const location = data.location.name;
+  const tempC = data.current.temp_c;
+  const condition = data.current.condition.text;
+
+  currentWeatherDiv.innerHTML = `
+    <h3>Current Weather</h3>
+    <p>Location: ${location}</p>
+    <p>Temperature: ${tempC}°C</p>
+    <p>Condition: ${condition}</p>
+  `;
+}
+
+function displayForecastWeather(data) {
+  const forecast = data.forecast.forecastday;
+  let forecastHTML = '<h3>Forecast Weather</h3>';
+
+  forecast.forEach(day => {
+    const date = day.date;
+    const maxTempC = day.day.maxtemp_c;
+    const minTempC = day
